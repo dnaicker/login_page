@@ -1,4 +1,6 @@
-const ngrok_url = "http://37b5-105-224-60-90.ngrok.io";
+import { show_modal } from './modal.js';
+
+const ngrok_url = "http://0c60-105-226-179-220.ngrok.io";
 
 var challenge = '';
 
@@ -7,14 +9,14 @@ export async function login_email() {
 	const data = {}
 
 	$.ajax({
-		url: `${ngrok_url}/trinsicCreateOrLoginAccount`,
+		url: `${ngrok_url}/trinsicCreateOrLoginAccount/${$("#email").val()}`,
 		type: "GET",
 		success: function (result) {
-			const arr = parse_items(result.items);
-			challenge = result.auth_token;
+			console.log(result);
+			challenge = result;
 
 			//save challenge
-			show_modal('OTP Sent', 'Please check email address for one time password.');
+			show_modal('One Time Pin', 'Please check email inbox for one time password sent.');
 		},
 		error: function(error) {
 			show_modal('Error', error.responseText);
@@ -26,13 +28,15 @@ export async function login_email() {
 export async function login_otp() {
 	const data = {}
 
-	data['challenge'] = challenge;
+	data['challenge'] = JSON.stringify(challenge.challenge.data);
 	data['otp'] = $("#otp").val();
+
+	console.log('send otp request',data);
 
 	$.ajax({
 		dataType: 'json',
 		data: data,
-		url: `${ngrok_url}/trinsicRegisterAccount`,
+		url: `${ngrok_url}/trinsicRegisterAccountChallengeString`,
 		type: "POST",
 		success: function (result) {
 			console.log(result);
